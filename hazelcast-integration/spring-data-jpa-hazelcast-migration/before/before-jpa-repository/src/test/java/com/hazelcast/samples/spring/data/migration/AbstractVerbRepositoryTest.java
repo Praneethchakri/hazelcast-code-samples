@@ -4,6 +4,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -17,6 +18,7 @@ import static org.junit.Assert.assertThat;
  * <P>Test CRUD operations against a Spring repository for {@link Verb}
  * </P>
  */
+@EnableAutoConfiguration
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes={Object.class})
 public abstract class AbstractVerbRepositoryTest {
@@ -49,14 +51,14 @@ public abstract class AbstractVerbRepositoryTest {
 		
 		assertThat("Not empty during", this.verbRepository.count(), equalTo(1L));
 
-		Verb invite2 = this.verbRepository.findOne(invite.getId());
+		Verb invite2 = this.verbRepository.findById(invite.getId()).get();
 		this.log.info("curd(), read {}", invite2);
 		
 		assertThat(invite2, not(nullValue()));
 		assertThat("System.identityHashCode", System.identityHashCode(invite2), not(equalTo(System.identityHashCode(invite))));
 		assertThat(invite2, equalTo(invite));
 		
-		this.verbRepository.delete(invite.getId());
+		this.verbRepository.delete(invite);
 		
 		assertThat("Empty after", this.verbRepository.count(), equalTo(0L));
 	}
