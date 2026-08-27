@@ -1,0 +1,78 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+
+    <artifactId>cp-subsystem</artifactId>
+    <name>CP Subsystem</name>
+    <groupId>com.hazelcast.samples.cp</groupId>
+    <description>
+        All the code samples for the distributed primitives chapter.
+    </description>
+
+    <parent>
+        <groupId>com.hazelcast.samples</groupId>
+        <artifactId>code-samples</artifactId>
+        <version>0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <properties>
+        <!-- needed for checkstyle/findbugs -->
+        <main.basedir>${project.parent.basedir}</main.basedir>
+    </properties>
+
+    <modules>
+        <module>cp-atomiclong</module>
+        <module>cp-atomicreference</module>
+        <module>cp-countdownlatch</module>
+        <module>cp-listeners</module>
+        <module>cp-map</module>
+        <module>fenced-lock</module>
+        <module>fenced-lock-auto-release-on-session-close</module>
+        <module>fenced-lock-auto-release-on-shutdown</module>
+        <module>fenced-lock-basic-usage</module>
+        <module>fenced-lock-force-release</module>
+        <module>fenced-lock-monotonic-fencing-tokens</module>
+        <module>fenced-lock-non-reentrant-mutex</module>
+        <module>fenced-lock-using-fencing-tokens</module>
+        <module>fenced-lock-lock-ownership-lost-exception</module>
+        <module>cp-semaphore</module>
+        <module>start-cp-subsystem-1</module>
+        <module>start-cp-subsystem-2</module>
+        <module>remove-crashed-cp-members-manually</module>
+        <module>remove-crashed-cp-members-automatically</module>
+        <module>restart-cp-subsystem</module>
+    </modules>
+
+    <repositories>
+        <repository>
+            <id>Hazelcast Private Snapshot Repository</id>
+            <url>https://repository.hazelcast.com/snapshot/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>Hazelcast Private Release Repository</id>
+            <url>https://repository.hazelcast.com/release/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-enterprise</artifactId>
+            <version>${hazelcast.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.hazelcast.samples</groupId>
+            <artifactId>helper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+</project>

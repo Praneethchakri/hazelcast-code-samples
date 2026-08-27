@@ -1,9 +1,8 @@
 package com.hazelcast.samples.serialization.hazelcast.airlines;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import com.hazelcast.samples.serialization.hazelcast.airlines.util.FlightBuilder;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,21 +10,21 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
-import org.junit.Test;
-
-import com.hazelcast.samples.serialization.hazelcast.airlines.util.FlightBuilder;
-
-import lombok.extern.slf4j.Slf4j;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 /**
  * <p>Java serialization test for {@link V2Flight}
  * </p>
  */
 @Slf4j
-public class V2FlightTest {
+class V2FlightTest {
 
-	@Test
-	public void test_serialization() throws Exception {
+    @Test
+    void test_serialization() throws Exception {
 		V2Flight objectSent = FlightBuilder.buildV2();
 		Object objectReceived = null;
 		byte[] bytes;

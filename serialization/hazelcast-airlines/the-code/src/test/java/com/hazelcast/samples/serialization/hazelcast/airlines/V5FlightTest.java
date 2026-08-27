@@ -1,31 +1,32 @@
 package com.hazelcast.samples.serialization.hazelcast.airlines;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import com.hazelcast.config.SerializationConfig;
+import com.hazelcast.config.SerializerConfig;
+import com.hazelcast.internal.serialization.Data;
+import com.hazelcast.internal.serialization.SerializationService;
+import com.hazelcast.samples.serialization.hazelcast.airlines.util.FlightBuilder;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import org.junit.Test;
-
-import com.hazelcast.config.SerializationConfig;
-import com.hazelcast.config.SerializerConfig;
-import com.hazelcast.nio.serialization.Data;
-import com.hazelcast.samples.serialization.hazelcast.airlines.util.FlightBuilder;
-import com.hazelcast.spi.serialization.SerializationService;
-
-import lombok.extern.slf4j.Slf4j;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 /**
  * <p>External serialization test for {@link V5Flight}
  * </p>
  */
 @Slf4j
-public class V5FlightTest {
+class V5FlightTest {
 
-	@Test
-	public void test_serialization() throws Exception {
+    @Test
+    void test_serialization() {
 		V5Flight objectSent = FlightBuilder.buildV5();
-		Object objectReceived = null;
+		Object objectReceived;
 		byte[] bytes;
 
 		SerializerConfig serializerConfig = new SerializerConfig();
@@ -35,7 +36,7 @@ public class V5FlightTest {
 		SerializationConfig serializationConfig = new SerializationConfig();
 		serializationConfig.addSerializerConfig(serializerConfig);
 		
-		SerializationService serializationService = 
+		SerializationService serializationService =
                 new com.hazelcast.internal.serialization.impl.DefaultSerializationServiceBuilder()
                 .setConfig(serializationConfig)
                 .build();

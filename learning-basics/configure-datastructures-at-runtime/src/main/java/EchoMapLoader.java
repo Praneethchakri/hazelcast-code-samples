@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2008-2017, Hazelcast, Inc. All Rights Reserved.
+ *  Copyright (c) 2008-2018, Hazelcast, Inc. All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  *
  */
 
-import com.hazelcast.core.MapLoader;
+import com.hazelcast.map.MapLoader;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,7 +31,7 @@ public class EchoMapLoader implements MapLoader<String, String> {
 
     @Override
     public Map<String, String> loadAll(Collection<String> keys) {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         for (String key : keys) {
             result.put(key, key);
         }

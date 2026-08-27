@@ -1,11 +1,10 @@
 package com.hazelcast.samples.serialization.hazelcast.airlines;
 
-import java.io.Serializable;
-import java.time.LocalDate;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+import java.time.LocalDate;
 
 /**
  * <p>The key for a flight object. Keys here are
@@ -14,12 +13,14 @@ import lombok.NoArgsConstructor;
  */
 @AllArgsConstructor
 @Data
-@NoArgsConstructor
 @SuppressWarnings("serial")
 public class MyKey implements Comparable<MyKey>, Serializable {
 
     private String code;
     private LocalDate date;
+
+    public MyKey() {
+    }
 
     /**
      * <p>Sort ascending, on code then date

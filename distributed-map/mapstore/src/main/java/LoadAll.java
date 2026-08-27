@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2014, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2018, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.config.XmlConfigBuilder;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.MapStore;
+import com.hazelcast.map.IMap;
+import com.hazelcast.map.MapStore;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,31 +33,32 @@ import java.util.concurrent.ConcurrentMap;
 public class LoadAll {
 
     public static void main(String[] args) {
-        int numberOfEntriesToAdd = 1000;
         String mapName = LoadAll.class.getCanonicalName();
 
         Config config = createNewConfig(mapName);
-        HazelcastInstance node = Hazelcast.newHazelcastInstance(config);
+        HazelcastInstance hz = Hazelcast.newHazelcastInstance(config);
+        IMap<Integer, Integer> map = hz.getMap(mapName);
 
-        IMap<Integer, Integer> map = node.getMap(mapName);
-
-        populateMap(map, numberOfEntriesToAdd);
-
-        System.out.printf("# Map store has %d elements\n", numberOfEntriesToAdd);
+        System.out.println("# Adding 5 elements to the map");
+        for (int i = 0; i < 5; i++) {
+            map.put(i, i);
+        }
 
         map.evictAll();
-
         System.out.printf("# After evictAll map size: %d\n", map.size());
 
         map.loadAll(true);
-
         System.out.printf("# After loadAll map size: %d\n", map.size());
-    }
 
-    private static void populateMap(IMap<Integer, Integer> map, int itemCount) {
-        for (int i = 0; i < itemCount; i++) {
-            map.put(i, i);
-        }
+        // stop the cluster
+        Hazelcast.shutdownAll();
+        // start newly the cluster
+        hz = Hazelcast.newHazelcastInstance(config);
+        map = hz.getMap(mapName);
+
+        System.out.printf("# After new cluster start - map size: %d\n", map.size());
+        // stop the cluster
+        Hazelcast.shutdownAll();
     }
 
     private static Config createNewConfig(String mapName) {
@@ -77,10 +78,11 @@ public class LoadAll {
 
     private static class SimpleStore implements MapStore<Integer, Integer> {
 
-        private ConcurrentMap<Integer, Integer> store = new ConcurrentHashMap<Integer, Integer>();
+        private ConcurrentMap<Integer, Integer> store = new ConcurrentHashMap<>();
 
         @Override
         public void store(Integer key, Integer value) {
+            System.out.println("SimpleStore - storing key: " + key);
             store.put(key, value);
         }
 
@@ -96,20 +98,26 @@ public class LoadAll {
 
         @Override
         public void delete(Integer key) {
+            System.out.println("SimpleStore - deleting key: " + key);
+            store.remove(key);
         }
 
         @Override
         public void deleteAll(Collection<Integer> keys) {
+            for (Integer key : keys) {
+                delete(key);
+            }
         }
 
         @Override
         public Integer load(Integer key) {
+            System.out.println("SimpleStore - loading value for key: " + key);
             return store.get(key);
         }
 
         @Override
         public Map<Integer, Integer> loadAll(Collection<Integer> keys) {
-            Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+            Map<Integer, Integer> map = new HashMap<>();
             for (Integer key : keys) {
                 Integer value = load(key);
                 map.put(key, value);
@@ -119,6 +127,7 @@ public class LoadAll {
 
         @Override
         public Set<Integer> loadAllKeys() {
+            System.out.println("SimpleStore - loading all keys");
             return store.keySet();
         }
     }

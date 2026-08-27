@@ -20,9 +20,9 @@
     <properties>
         <!-- needed for checkstyle/findbugs -->
         <main.basedir>${project.parent.parent.basedir}</main.basedir>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <jclouds.version>1.9.1</jclouds.version>
+        <hazelcast.version>3.12.6</hazelcast.version>
     </properties>
 
     <dependencies>
@@ -57,6 +57,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven.assembly.plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

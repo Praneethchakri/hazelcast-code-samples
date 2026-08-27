@@ -6,6 +6,7 @@
 target/
 .project
 .classpath
+.factorypath
 .settings/
 **/.springBeans
 .idea/
@@ -16,3 +17,9 @@ bin/
 hibernateDB
 springHibernateDB
 osgi/felix-cache/
+.java-version
+*.code-workspace
+dependency-reduced-pom.xml
+/enterprise/tls-rbac-demo/keymaterial/
+
+**/licensekey.env

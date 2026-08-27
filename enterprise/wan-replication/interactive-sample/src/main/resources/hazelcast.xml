@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hazelcast xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.hazelcast.com/schema/config
+                               http://www.hazelcast.com/schema/config/hazelcast-config-5.5.xsd"
+           xmlns="http://www.hazelcast.com/schema/config">
+
+    <cluster-name>clusterA</cluster-name>
+    <license-key>YOUR_LICENSE_KEY</license-key>
+
+    <network>
+        <port>5701</port>
+        <join>
+            <multicast enabled="false"/>
+            <tcp-ip enabled="true">
+                <member>127.0.0.1:5701</member>
+            </tcp-ip>
+        </join>
+    </network>
+
+    <wan-replication name="AtoB">
+        <batch-publisher>
+            <cluster-name>clusterB</cluster-name>
+            <target-endpoints>127.0.0.1:5702</target-endpoints>
+        </batch-publisher>
+        <!--
+        <custom-publisher>
+            <class-name>YOUR_PUBLISHER_CLASS_NAME</class-name>
+            <publisher-id>YOUR_PUBLISHER_ID</publisher-id>
+            <properties>
+                <property name="key">value</property>
+            </properties>
+        </custom-publisher>
+        <consumer>
+            <class-name>YOUR_CONSUMER_CLASS_NAME</class-name>
+            <properties>
+                <property name="key">value</property>
+            </properties>
+        </consumer>
+        -->
+    </wan-replication>
+
+    <map name="default">
+        <wan-replication-ref name="AtoB">
+            <!-- Merge policy is optional -->
+            <merge-policy-class-name>com.hazelcast.spi.merge.PassThroughMergePolicy</merge-policy-class-name>
+            <!-- Filters are optional -->
+            <filters>
+                <filter-impl>com.hazelcast.wan.batch.map.filter.SampleMapWanEventFilter</filter-impl>
+            </filters>
+        </wan-replication-ref>
+    </map>
+</hazelcast>

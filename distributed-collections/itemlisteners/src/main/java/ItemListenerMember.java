@@ -1,8 +1,8 @@
+import com.hazelcast.collection.ICollection;
+import com.hazelcast.collection.ItemEvent;
+import com.hazelcast.collection.ItemListener;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.ICollection;
-import com.hazelcast.core.ItemEvent;
-import com.hazelcast.core.ItemListener;
 
 public class ItemListenerMember {
 
@@ -14,10 +14,12 @@ public class ItemListenerMember {
     }
 
     private static class ItemListenerImpl<E> implements ItemListener<E> {
+        @Override
         public void itemAdded(ItemEvent<E> itemEvent) {
             System.out.println("Item added:" + itemEvent.getItem());
         }
 
+        @Override
         public void itemRemoved(ItemEvent<E> itemEvent) {
             System.out.println("Item removed:" + itemEvent.getItem());
         }

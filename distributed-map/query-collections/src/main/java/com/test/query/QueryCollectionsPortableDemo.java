@@ -3,12 +3,12 @@ package com.test.query;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
+import com.hazelcast.map.IMap;
 import com.hazelcast.nio.serialization.Portable;
 import com.hazelcast.nio.serialization.PortableFactory;
 import com.hazelcast.nio.serialization.PortableReader;
 import com.hazelcast.nio.serialization.PortableWriter;
-import com.hazelcast.query.SqlPredicate;
+import com.hazelcast.query.Predicates;
 
 import java.io.IOException;
 import java.util.Set;
@@ -29,7 +29,7 @@ public class QueryCollectionsPortableDemo {
         map.put(3, new PersonPortable("Hans", limb("left-leg"), limb("right-leg")));
         map.put(4, new PersonPortable("Stefanie", limb("left-arm"), limb("right-arm")));
 
-        Set<PersonPortable> employees = (Set<PersonPortable>) map.values(new SqlPredicate("limbs[any].name == right-leg"));
+        Set<PersonPortable> employees = (Set<PersonPortable>) map.values(Predicates.sql("limbs[any].name == right-leg"));
         System.out.println("People: " + employees);
 
         Hazelcast.shutdownAll();
@@ -67,13 +67,13 @@ public class QueryCollectionsPortableDemo {
 
         @Override
         public void writePortable(PortableWriter out) throws IOException {
-            out.writeUTF("name", name);
+            out.writeString("name", name);
             out.writePortableArray("limbs", limbs);
         }
 
         @Override
         public void readPortable(PortableReader in) throws IOException {
-            name = in.readUTF("name");
+            name = in.readString("name");
             limbs = in.readPortableArray("limbs");
         }
     }
@@ -107,12 +107,12 @@ public class QueryCollectionsPortableDemo {
 
         @Override
         public void writePortable(PortableWriter out) throws IOException {
-            out.writeUTF("name", name);
+            out.writeString("name", name);
         }
 
         @Override
         public void readPortable(PortableReader in) throws IOException {
-            name = in.readUTF("name");
+            name = in.readString("name");
         }
     }
 

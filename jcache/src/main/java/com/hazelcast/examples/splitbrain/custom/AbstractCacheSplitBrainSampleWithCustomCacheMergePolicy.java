@@ -1,16 +1,19 @@
 package com.hazelcast.examples.splitbrain.custom;
 
-import com.hazelcast.cache.CacheEntryView;
-import com.hazelcast.cache.CacheMergePolicy;
 import com.hazelcast.cache.impl.HazelcastServerCachingProvider;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.examples.splitbrain.AbstractCacheSplitBrainSample;
+import com.hazelcast.nio.ObjectDataInput;
+import com.hazelcast.nio.ObjectDataOutput;
+import com.hazelcast.spi.merge.MergingValue;
+import com.hazelcast.spi.merge.SplitBrainMergePolicy;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.spi.CachingProvider;
+import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
 import static com.hazelcast.examples.helper.CommonUtils.assertClusterSizeEventually;
@@ -19,9 +22,16 @@ import static com.hazelcast.examples.helper.CommonUtils.assertTrue;
 import static com.hazelcast.examples.helper.HazelcastUtils.generateKeyOwnedBy;
 
 /**
- * Base class for jcache split-brain sample based on `custom cache merge policy.
+ * Base class for jcache split-brain sample based on custom cache merge policy.
  *
- * Custom cache merge policy implements {@link com.hazelcast.cache.CacheMergePolicy} and handles its own logic.
+ * Custom cache merge policy implements {@link com.hazelcast.spi.merge.SplitBrainMergePolicy} and handles its own logic.
+ * <p>
+ * <b>IMPORTANT</b>: this sample uses internal API {@code HazelcastServerCachingProvider} to
+ * start two separate {@code CachingProvider}s and associated {@code CacheManager}s with separate
+ * backing {@link HazelcastInstance}s. Application production code should never do that. Instead
+ * use JCache standard API methods as described in javadoc of {@link com.hazelcast.cache.HazelcastCachingProvider}
+ * or public Hazelcast API.
+ * </p>
  */
 abstract class AbstractCacheSplitBrainSampleWithCustomCacheMergePolicy extends AbstractCacheSplitBrainSample {
 
@@ -39,8 +49,8 @@ abstract class AbstractCacheSplitBrainSampleWithCustomCacheMergePolicy extends A
 
             CountDownLatch splitBrainCompletedLatch = simulateSplitBrain(h1, h2);
 
-            CachingProvider cachingProvider1 = HazelcastServerCachingProvider.createCachingProvider(h1);
-            CachingProvider cachingProvider2 = HazelcastServerCachingProvider.createCachingProvider(h2);
+            CachingProvider cachingProvider1 = new HazelcastServerCachingProvider(h1);
+            CachingProvider cachingProvider2 = new HazelcastServerCachingProvider(h2);
 
             CacheManager cacheManager1 = cachingProvider1.getCacheManager();
             CacheManager cacheManager2 = cachingProvider2.getCacheManager();
@@ -54,7 +64,7 @@ abstract class AbstractCacheSplitBrainSampleWithCustomCacheMergePolicy extends A
             String key = generateKeyOwnedBy(h1);
             cache1.put(key, "value");
 
-            cache2.put(key, Integer.valueOf(1));
+            cache2.put(key, 1);
 
             assertOpenEventually(splitBrainCompletedLatch);
             assertClusterSizeEventually(2, h1);
@@ -70,14 +80,24 @@ abstract class AbstractCacheSplitBrainSampleWithCustomCacheMergePolicy extends A
         }
     }
 
-    public static class CustomCacheMergePolicy implements CacheMergePolicy {
+    public static class CustomCacheMergePolicy implements SplitBrainMergePolicy<Object, MergingValue<Object>, Object> {
 
         @Override
-        public Object merge(String cacheName, CacheEntryView mergingEntry, CacheEntryView existingEntry) {
-            if (mergingEntry.getValue() instanceof Integer) {
-                return mergingEntry.getValue();
+        public Object merge(MergingValue<Object> mergingValue, MergingValue<Object> existingValue) {
+            if (mergingValue.getRawValue() instanceof Integer) {
+                return mergingValue.getRawValue();
             }
             return null;
+        }
+
+        @Override
+        public void writeData(ObjectDataOutput objectDataOutput) throws IOException {
+
+        }
+
+        @Override
+        public void readData(ObjectDataInput objectDataInput) throws IOException {
+
         }
     }
 }

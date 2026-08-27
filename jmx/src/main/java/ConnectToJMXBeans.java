@@ -1,7 +1,7 @@
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
+import com.hazelcast.map.IMap;
 
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
@@ -38,7 +38,7 @@ public class ConnectToJMXBeans {
         MBeanServerConnection mbsc = jmxConnector.getMBeanServerConnection();
 
         // See all Beans available
-        Set<ObjectName> names = new TreeSet<ObjectName>(mbsc.queryNames(null, null));
+        Set<ObjectName> names = new TreeSet<>(mbsc.queryNames(null, null));
         for (ObjectName name : names) {
             System.out.println("\tBean name: " + name);
         }

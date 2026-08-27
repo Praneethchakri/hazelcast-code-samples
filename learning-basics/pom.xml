@@ -21,13 +21,13 @@
     <properties>
         <!-- needed for checkstyle/findbugs -->
         <main.basedir>${project.parent.basedir}</main.basedir>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <modules>
         <module>configure-logging</module>
         <module>configure-programmatic</module>
         <module>configure-xml</module>
+        <module>configure-yaml</module>
         <module>destroying-instances</module>
         <module>loading-instances</module>
         <module>multiple-hazelcast-instances</module>
@@ -39,7 +39,7 @@
     <dependencies>
         <dependency>
             <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-all</artifactId>
+            <artifactId>hazelcast</artifactId>
             <version>${hazelcast.version}</version>
         </dependency>
 

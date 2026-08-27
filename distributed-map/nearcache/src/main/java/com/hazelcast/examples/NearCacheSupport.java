@@ -3,12 +3,12 @@ package com.hazelcast.examples;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.monitor.NearCacheStats;
+import com.hazelcast.map.IMap;
+import com.hazelcast.nearcache.NearCacheStats;
 
 import static com.hazelcast.core.Hazelcast.newHazelcastInstance;
 import static com.hazelcast.examples.helper.CommonUtils.sleepSeconds;
-import static com.hazelcast.spi.properties.GroupProperty.CACHE_INVALIDATION_MESSAGE_BATCH_FREQUENCY_SECONDS;
+import static com.hazelcast.spi.properties.ClusterProperty.CACHE_INVALIDATION_MESSAGE_BATCH_FREQUENCY_SECONDS;
 import static java.lang.Integer.parseInt;
 
 abstract class NearCacheSupport {

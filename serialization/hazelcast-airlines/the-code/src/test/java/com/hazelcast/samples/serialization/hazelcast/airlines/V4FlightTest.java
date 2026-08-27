@@ -1,34 +1,35 @@
 package com.hazelcast.samples.serialization.hazelcast.airlines;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-
-import java.util.Arrays;
-
-import org.junit.Test;
-
-import com.hazelcast.nio.serialization.Data;
+import com.hazelcast.internal.serialization.Data;
+import com.hazelcast.internal.serialization.SerializationService;
 import com.hazelcast.samples.serialization.hazelcast.airlines.util.Constants;
 import com.hazelcast.samples.serialization.hazelcast.airlines.util.FlightBuilder;
 import com.hazelcast.samples.serialization.hazelcast.airlines.util.MyDataSerializableFactory;
-import com.hazelcast.spi.serialization.SerializationService;
-
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 /**
  * <p>Hazelcast serialization test for {@link V4Flight}
  * </p>
  */
 @Slf4j
-public class V4FlightTest {
+class V4FlightTest {
 
-	@Test
-	public void test_serialization() throws Exception {
+    @Test
+    void test_serialization() {
 		V4Flight objectSent = FlightBuilder.buildV4();
 		Object objectReceived = null;
 		byte[] bytes;
 
-        SerializationService serializationService = 
+        SerializationService serializationService =
                 new com.hazelcast.internal.serialization.impl.DefaultSerializationServiceBuilder()
                 .addDataSerializableFactory(Constants.MY_DATASERIALIZABLE_FACTORY, new MyDataSerializableFactory())
                 .build();

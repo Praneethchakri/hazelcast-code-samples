@@ -2,13 +2,13 @@ package com.hazelcast.examples;
 
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.monitor.NearCacheStats;
+import com.hazelcast.map.IMap;
+import com.hazelcast.nearcache.NearCacheStats;
 
 import java.io.File;
 
 import static com.hazelcast.examples.helper.CommonUtils.sleepMillis;
-import static com.hazelcast.nio.IOUtil.deleteQuietly;
+import static com.hazelcast.internal.nio.IOUtil.deleteQuietly;
 
 public class ClientNearCacheWithPreloader extends NearCacheClientSupport {
 

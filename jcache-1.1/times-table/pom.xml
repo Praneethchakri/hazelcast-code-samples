@@ -18,14 +18,11 @@
     <properties>
         <!-- needed for checkstyle/findbugs -->
         <main.basedir>${project.parent.parent.basedir}</main.basedir>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- these versions are set by the build profile, see the bottom of this file -->
         <hazelcast.version>${profile.hazelcast.version}</hazelcast.version>
         <javax-cache.version>${profile.jsr107.version}</javax-cache.version>
 
-        <java.version>8</java.version>
-        <spring-boot.version>1.5.9.RELEASE</spring-boot.version>
         <spring-shell.version>1.2.0.RELEASE</spring-shell.version>
     </properties>
 
@@ -47,11 +44,6 @@
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
             <version>${javax-cache.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
         </dependency>
 
         <dependency>
@@ -101,22 +93,13 @@
                 <artifactId>spring-boot-starter-parent</artifactId>
                 <type>pom</type>
                 <scope>import</scope>
-                <version>${spring-boot.version}</version>
+                <version>${spring.boot.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
             <!-- Reduces "Artifact has not been packaged yet" issue -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -137,7 +120,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <profile.hazelcast.version>3.9.3</profile.hazelcast.version>
+                <profile.hazelcast.version>3.12.6</profile.hazelcast.version>
                 <profile.jsr107.version>1.1.0</profile.jsr107.version>
             </properties>
         </profile>

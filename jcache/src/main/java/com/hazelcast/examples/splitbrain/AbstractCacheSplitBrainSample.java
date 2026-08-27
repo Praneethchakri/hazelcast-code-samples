@@ -1,16 +1,16 @@
 package com.hazelcast.examples.splitbrain;
 
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MembershipListener;
 import com.hazelcast.config.CacheConfig;
 import com.hazelcast.config.Config;
+import com.hazelcast.config.MergePolicyConfig;
 import com.hazelcast.config.XmlConfigBuilder;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleListener;
-import com.hazelcast.core.MemberAttributeEvent;
-import com.hazelcast.core.MembershipEvent;
-import com.hazelcast.core.MembershipListener;
-import com.hazelcast.instance.Node;
-import com.hazelcast.util.ExceptionUtil;
+import com.hazelcast.instance.impl.Node;
+import com.hazelcast.internal.util.ExceptionUtil;
 
 import java.io.FileNotFoundException;
 import java.util.concurrent.CountDownLatch;
@@ -31,7 +31,7 @@ public abstract class AbstractCacheSplitBrainSample {
         Config config = new Config();
         config.setProperty("hazelcast.merge.first.run.delay.seconds", "5");
         config.setProperty("hazelcast.merge.next.run.delay.seconds", "3");
-        config.getGroupConfig().setName(generateRandomString(10));
+        config.setClusterName(generateRandomString(10));
         return config;
     }
 
@@ -40,7 +40,7 @@ public abstract class AbstractCacheSplitBrainSample {
             Config config = new XmlConfigBuilder("src/main/resources/hazelcast-splitbrain.xml").build();
             config.setProperty("hazelcast.merge.first.run.delay.seconds", "5");
             config.setProperty("hazelcast.merge.next.run.delay.seconds", "3");
-            config.getGroupConfig().setName(generateRandomString(10));
+            config.setClusterName(generateRandomString(10));
             return config;
         } catch (FileNotFoundException e) {
             throw ExceptionUtil.rethrow(e);
@@ -50,7 +50,7 @@ public abstract class AbstractCacheSplitBrainSample {
     protected static CacheConfig newCacheConfig(String cacheName, String mergePolicy) {
         CacheConfig cacheConfig = new CacheConfig();
         cacheConfig.setName(cacheName);
-        cacheConfig.setMergePolicy(mergePolicy);
+        cacheConfig.setMergePolicyConfig(new MergePolicyConfig(mergePolicy, 100));
         return cacheConfig;
     }
 
@@ -87,9 +87,6 @@ public abstract class AbstractCacheSplitBrainSample {
             latch.countDown();
         }
 
-        @Override
-        public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
-        }
     }
 
     protected static CountDownLatch simulateSplitBrain(HazelcastInstance h1, HazelcastInstance h2) {

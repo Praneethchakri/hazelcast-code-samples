@@ -2,15 +2,15 @@ import com.hazelcast.config.Config;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.MapEvent;
+import com.hazelcast.map.IMap;
+import com.hazelcast.map.MapEvent;
 import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.map.listener.EntryEvictedListener;
 import com.hazelcast.map.listener.EntryRemovedListener;
 import com.hazelcast.map.listener.EntryUpdatedListener;
 import com.hazelcast.map.listener.MapClearedListener;
 import com.hazelcast.map.listener.MapEvictedListener;
-import com.hazelcast.query.SqlPredicate;
+import com.hazelcast.query.Predicates;
 
 /**
  * Registers an entry listener with a predicate to continuously query map data as it is updated.
@@ -63,7 +63,7 @@ public class ContinuousQueryMember {
         HazelcastInstance hz = Hazelcast.newHazelcastInstance(config);
         IMap<String, String> map = hz.getMap("map");
         map.addEntryListener(new MyEntryListener(),
-                new SqlPredicate("name=peter"), true);
+                Predicates.sql("name=peter"), true);
         System.out.println("EntryListener registered");
     }
 

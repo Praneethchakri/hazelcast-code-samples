@@ -1,10 +1,9 @@
 package com.hazelcast.samples.serialization.hazelcast.airlines;
 
-import java.io.Serializable;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
 
 /**
  * <p>Someone who is on a flight. Note that this object is
@@ -14,9 +13,12 @@ import lombok.NoArgsConstructor;
  */
 @AllArgsConstructor
 @Data
-@NoArgsConstructor
 @SuppressWarnings("serial")
 public class Person implements Serializable {
 
     private String name;
+
+    public Person() {
+    }
+
 }

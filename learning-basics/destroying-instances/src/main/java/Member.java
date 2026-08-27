@@ -1,10 +1,10 @@
+import com.hazelcast.collection.IQueue;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IQueue;
 
 public class Member {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         HazelcastInstance hz1 = Hazelcast.newHazelcastInstance();
         HazelcastInstance hz2 = Hazelcast.newHazelcastInstance();
 

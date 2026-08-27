@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hazelcast-client-failover xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                           xsi:schemaLocation="http://www.hazelcast.com/schema/client-config
+                               http://www.hazelcast.com/schema/client-config/hazelcast-client-failover-config-5.5.xsd"
+                           xmlns="http://www.hazelcast.com/schema/client-config">
+    <try-count>5</try-count>
+    <clients>
+        <client>clientToCluster1.xml</client>
+        <client>clientToCluster2.xml</client>
+    </clients>
+</hazelcast-client-failover>

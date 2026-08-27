@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hazelcast xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.hazelcast.com/schema/config
+                               http://www.hazelcast.com/schema/config/hazelcast-config-5.5.xsd"
+           xmlns="http://www.hazelcast.com/schema/config">
+
+    <cluster-name>dev</cluster-name>
+
+    <network>
+        <port auto-increment="true" port-count="100">5701</port>
+        <outbound-ports>
+            <!--
+            Allowed port range when connecting to other nodes.
+            0 or * means use system provided port.
+            -->
+            <ports>0</ports>
+        </outbound-ports>
+        <join>
+            <multicast enabled="true">
+                <multicast-group>224.2.2.3</multicast-group>
+                <multicast-port>54327</multicast-port>
+            </multicast>
+            <tcp-ip enabled="false">
+            </tcp-ip>
+            <aws enabled="false">
+            </aws>
+        </join>
+    </network>
+
+    <split-brain-protection enabled="true"
+                            name="cache-split-brain-protection">
+        <minimum-cluster-size>2</minimum-cluster-size>
+        <protect-on>READ_WRITE</protect-on>
+    </split-brain-protection>
+
+    <cache name="cache-with-split-brain-protection">
+        <split-brain-protection-ref>cache-split-brain-protection
+        </split-brain-protection-ref>
+    </cache>
+</hazelcast>

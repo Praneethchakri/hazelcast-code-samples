@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2014, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2018, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MemberSelector;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceAware;
 import com.hazelcast.core.IExecutorService;
-import com.hazelcast.core.Member;
-import com.hazelcast.core.MemberSelector;
 
 import java.io.Serializable;
 import java.util.concurrent.Callable;
@@ -31,7 +31,7 @@ public class ForceLocalMemberToBeSafe {
 
     public static void main(String[] args) throws Exception {
         Config config = new Config();
-        config.getMemberAttributeConfig().setBooleanAttribute("EAST", true);
+        config.getMemberAttributeConfig().setAttribute("EAST", "true");
 
         HazelcastInstance node = Hazelcast.newHazelcastInstance(config);
         IExecutorService executorService = node.getExecutorService(ForceLocalMemberToBeSafe.class.getName());
@@ -39,7 +39,7 @@ public class ForceLocalMemberToBeSafe {
         Future<Boolean> result = executorService.submit(new MemberSafe(), new MemberSelector() {
             @Override
             public boolean select(Member member) {
-                Boolean east = member.getBooleanAttribute("EAST");
+                Boolean east = Boolean.parseBoolean(member.getAttribute("EAST"));
                 return Boolean.TRUE.equals(east);
             }
         });

@@ -1,6 +1,6 @@
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceAware;
-import com.hazelcast.core.IMap;
+import com.hazelcast.map.IMap;
 
 import java.io.Serializable;
 
@@ -13,10 +13,12 @@ public class VerifyTask implements Runnable, Serializable, HazelcastInstanceAwar
         this.key = key;
     }
 
+    @Override
     public void setHazelcastInstance(HazelcastInstance hz) {
         this.hz = hz;
     }
 
+    @Override
     public void run() {
         IMap map = hz.getMap("map");
         boolean localKey = map.localKeySet().contains(key);

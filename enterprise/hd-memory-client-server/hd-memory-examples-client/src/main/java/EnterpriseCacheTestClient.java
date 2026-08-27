@@ -1,18 +1,20 @@
+import com.hazelcast.cache.HazelcastCachingProvider;
 import com.hazelcast.cache.ICache;
 import com.hazelcast.client.HazelcastClient;
-import com.hazelcast.client.cache.impl.HazelcastClientCachingProvider;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.internal.util.EmptyStatement;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.Logger;
 import com.hazelcast.memory.NativeOutOfMemoryError;
-import com.hazelcast.util.EmptyStatement;
 import org.HdrHistogram.AbstractHistogram;
 import org.HdrHistogram.AtomicHistogram;
 import org.HdrHistogram.Histogram;
 
 import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.cache.spi.CachingProvider;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
@@ -21,8 +23,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.hazelcast.examples.helper.LicenseUtils.ENTERPRISE_LICENSE_KEY;
 
 /**
  * You have to set your Hazelcast Enterprise license key to make this code sample work.
@@ -59,10 +59,10 @@ public final class EnterpriseCacheTestClient {
                                       int valueMin, int valueMax, long duration) throws IOException {
         InputStream configInputStream = EnterpriseCacheTestClient.class.getResourceAsStream("/hazelcast-client-hd-memory.xml");
         ClientConfig clientConfig = new XmlClientConfigBuilder(configInputStream).build();
-        clientConfig.setLicenseKey(ENTERPRISE_LICENSE_KEY);
 
         this.instance = HazelcastClient.newHazelcastClient(clientConfig);
-        this.cacheManager = HazelcastClientCachingProvider.createCachingProvider(instance).getCacheManager();
+        CachingProvider provider = Caching.getCachingProvider(HazelcastCachingProvider.CLIENT_CACHING_PROVIDER);
+        this.cacheManager = provider.getCacheManager(null, null, HazelcastCachingProvider.propertiesByInstanceItself(instance));
         this.executorService = Executors.newFixedThreadPool(threadCount);
         this.logger = Logger.getLogger(getClass());
         this.allStats = new Stats[threadCount];

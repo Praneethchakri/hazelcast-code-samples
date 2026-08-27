@@ -37,7 +37,7 @@ public class PortableDomainObjectExample extends AbstractApp {
     }
 
     private Cache<String, DomainObject> getCache(CacheManager cacheManager1) {
-        MutableConfiguration<String, DomainObject> config = new MutableConfiguration<String, DomainObject>();
+        MutableConfiguration<String, DomainObject> config = new MutableConfiguration<>();
         config.setStoreByValue(true)
                 .setTypes(String.class, DomainObject.class)
                 .setStatisticsEnabled(false);
@@ -82,14 +82,14 @@ public class PortableDomainObjectExample extends AbstractApp {
         @Override
         public void writePortable(PortableWriter portableWriter) throws IOException {
             System.out.println("Writing portable");
-            portableWriter.writeUTF("name", name);
+            portableWriter.writeString("name", name);
             portableWriter.writeLong("id", id);
         }
 
         @Override
         public void readPortable(PortableReader portableReader) throws IOException {
             System.out.println("Reading portable");
-            name = portableReader.readUTF("name");
+            name = portableReader.readString("name");
             id = portableReader.readLong("id");
         }
 

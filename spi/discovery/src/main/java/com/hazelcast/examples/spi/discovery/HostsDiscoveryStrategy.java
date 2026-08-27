@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2015, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2018, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package com.hazelcast.examples.spi.discovery;
 
 import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.cluster.Address;
 import com.hazelcast.logging.ILogger;
-import com.hazelcast.nio.Address;
 import com.hazelcast.spi.discovery.AbstractDiscoveryStrategy;
 import com.hazelcast.spi.discovery.DiscoveryNode;
 import com.hazelcast.spi.discovery.SimpleDiscoveryNode;
@@ -74,7 +74,7 @@ public class HostsDiscoveryStrategy extends AbstractDiscoveryStrategy {
         // read all lines
         List<String> lines = readLines(hosts);
 
-        List<String> assignments = new ArrayList<String>();
+        List<String> assignments = new ArrayList<>();
         for (String line : lines) {
             // example:
             // 192.168.0.1   host1.cluster.local
@@ -86,13 +86,13 @@ public class HostsDiscoveryStrategy extends AbstractDiscoveryStrategy {
     }
 
     private Iterable<DiscoveryNode> mapToDiscoveryNodes(List<String> assignments) {
-        Collection<DiscoveryNode> discoveredNodes = new ArrayList<DiscoveryNode>();
+        Collection<DiscoveryNode> discoveredNodes = new ArrayList<>();
 
         for (String assignment : assignments) {
             String address = sliceAddress(assignment);
             String hostname = sliceHostname(assignment);
 
-            Map<String, Object> attributes = Collections.<String, Object>singletonMap("hostname", hostname);
+            Map<String, String> attributes = Collections.<String, String>singletonMap("hostname", hostname);
 
             InetAddress inetAddress = mapToInetAddress(address);
             Address addr = new Address(inetAddress, NetworkConfig.DEFAULT_PORT);
@@ -104,7 +104,7 @@ public class HostsDiscoveryStrategy extends AbstractDiscoveryStrategy {
 
     private List<String> readLines(File hosts) {
         try {
-            List<String> lines = new ArrayList<String>();
+            List<String> lines = new ArrayList<>();
             BufferedReader reader = new BufferedReader(new FileReader(hosts));
 
             String line;

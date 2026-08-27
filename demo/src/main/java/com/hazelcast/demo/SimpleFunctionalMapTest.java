@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2018, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.hazelcast.demo;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
+import com.hazelcast.map.IMap;
 
 import java.util.Collection;
 import java.util.Map;
@@ -78,7 +78,7 @@ public final class SimpleFunctionalMapTest {
      * Map statistics class
      */
     private static class Stats {
-        Map<String, AtomicLong> mapStats = new ConcurrentHashMap<String, AtomicLong>(10);
+        Map<String, AtomicLong> mapStats = new ConcurrentHashMap<>(10);
 
         Stats() {
             mapStats.put("put", new AtomicLong(0));

@@ -1,0 +1,58 @@
+import com.hazelcast.config.CompactSerializationConfig;
+import com.hazelcast.config.Config;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.nio.serialization.compact.CompactReader;
+import com.hazelcast.nio.serialization.compact.CompactSerializer;
+import com.hazelcast.nio.serialization.compact.CompactWriter;
+
+import java.util.Map;
+
+/**
+ * Demonstrates how to use Compact serialization from java in a polyglot setup where hazelcast clients written in
+ * different languages needs to be used.
+ */
+public class CompactFullConfig {
+
+    public static void main(String[] args) {
+        Config config = new Config();
+        CompactSerializationConfig compactSerializationConfig = config.getSerializationConfig().getCompactSerializationConfig();
+        //Here we register a typename `person` and a serializer against the PersonDTO class so that any client from any language
+        //can use same typename and field names to match
+        compactSerializationConfig.addSerializer(new CompactSerializer<PersonDTO>() {
+            @Override
+            public PersonDTO read(CompactReader compactReader) {
+                int age = compactReader.readInt32("age");
+                String name = compactReader.readString("name");
+                String surname = compactReader.readString("surname");
+                return new PersonDTO(name, surname, age);
+            }
+
+            @Override
+            public void write(CompactWriter compactWriter, PersonDTO personDTO) {
+                compactWriter.writeInt32("age", personDTO.getAge());
+                compactWriter.writeString("name", personDTO.getName());
+                compactWriter.writeString("surname", personDTO.getSurname());
+            }
+
+            @Override
+            public String getTypeName() {
+                return "person";
+            }
+
+            @Override
+            public Class<PersonDTO> getCompactClass() {
+                return PersonDTO.class;
+            }
+        });
+        HazelcastInstance hz = Hazelcast.newHazelcastInstance(config);
+        Map<String, PersonDTO> map = hz.getMap("map");
+
+        map.put("Peter", new PersonDTO("Peter", "Stone", 45));
+
+        PersonDTO person = map.get("Peter");
+        System.out.println(person);
+
+        Hazelcast.shutdownAll();
+    }
+}

@@ -1,0 +1,71 @@
+name: Builder
+
+on:
+  pull_request_target:
+
+jobs:
+  check_for_membership:
+    runs-on: ubuntu-latest
+    name: Check PR author membership
+    outputs:
+      check-result: ${{ steps.composite.outputs.check-result }}
+    steps: 
+      - name: Action for membership check
+        id: composite
+        uses: hazelcast/hazelcast-tpm/membership@main
+        with:
+          member-name: ${{ github.triggering_actor }}
+          token: ${{ secrets.GH_TOKEN }}
+  pr-builder:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    needs: check_for_membership
+    steps:
+      - name: Detect untrusted community PR
+        if: ${{ needs.check_for_membership.outputs.check-result == 'false' && github.event.pull_request.user.login != 'dependabot[bot]' }}
+        run: |
+          source /dev/stdin <<< "$(curl --fail --silent https://raw.githubusercontent.com/hazelcast/github-actions-common-scripts/main/logging.functions.sh)"
+          echoerr "Untrusted external PR. Must be reviewed and executed by Hazelcast"
+          exit 1
+      # Default GitHub runners have very little free disk space causing build failures
+      # This operation can be intensive, so remove as little as possible to gain useful space
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
+        with:
+          tool-cache: false
+          android: false
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: true
+      - uses: actions/checkout@v6
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
+          aws-region: 'us-east-1'
+      - name: Get Secrets
+        uses: aws-actions/aws-secretsmanager-get-secrets@v3
+        with:
+          secret-ids: |
+            HZ_LICENSE_KEY,CN/HZ_LICENSE_KEY
+      - name: Build and test
+        run: |
+          ${RUNNER_DEBUG:+set -x}
+          mvn \
+            --batch-mode \
+            --errors \
+            --no-transfer-progress \
+            ${RUNNER_DEBUG:+--show-version} \
+            "-Dhazelcast.enterprise.license.key=${HZ_LICENSE_KEY}" \
+           verify

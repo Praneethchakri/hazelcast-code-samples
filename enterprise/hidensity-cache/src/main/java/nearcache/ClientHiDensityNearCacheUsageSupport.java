@@ -2,25 +2,25 @@ package nearcache;
 
 import com.hazelcast.cache.ICache;
 import com.hazelcast.client.HazelcastClient;
-import com.hazelcast.client.cache.impl.HazelcastClientCacheManager;
 import com.hazelcast.client.cache.impl.HazelcastClientCachingProvider;
 import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.client.impl.HazelcastClientProxy;
+import com.hazelcast.client.impl.clientside.HazelcastClientProxy;
 import com.hazelcast.config.CacheConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.EvictionConfig;
-import com.hazelcast.config.EvictionConfig.MaxSizePolicy;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.NativeMemoryConfig;
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.examples.nearcache.ClientNearCacheUsageSupport;
-import com.hazelcast.memory.HazelcastMemoryManager;
+import com.hazelcast.internal.memory.HazelcastMemoryManager;
+import com.hazelcast.internal.serialization.EnterpriseSerializationService;
 import com.hazelcast.memory.MemorySize;
 import com.hazelcast.memory.MemoryUnit;
-import com.hazelcast.nio.serialization.EnterpriseSerializationService;
 
+import javax.cache.CacheManager;
 import javax.cache.spi.CachingProvider;
 
+import static com.hazelcast.config.MaxSizePolicy.USED_NATIVE_MEMORY_PERCENTAGE;
 import static com.hazelcast.examples.helper.LicenseUtils.ENTERPRISE_LICENSE_KEY;
 
 @SuppressWarnings("unused")
@@ -51,14 +51,13 @@ abstract class ClientHiDensityNearCacheUsageSupport extends ClientNearCacheUsage
                 .setEnabled(true);
 
         return super.createClientConfig()
-                .setLicenseKey(ENTERPRISE_LICENSE_KEY)
                 .setNativeMemoryConfig(nativeMemoryConfig);
     }
 
     @Override
     protected <K, V> CacheConfig<K, V> createCacheConfig(String cacheName, InMemoryFormat inMemoryFormat) {
         EvictionConfig evictionConfig = new EvictionConfig()
-                .setMaximumSizePolicy(MaxSizePolicy.USED_NATIVE_MEMORY_PERCENTAGE)
+                .setMaxSizePolicy(USED_NATIVE_MEMORY_PERCENTAGE)
                 .setSize(99);
 
         CacheConfig<K, V> cacheConfig = super.createCacheConfig(cacheName, inMemoryFormat);
@@ -71,7 +70,7 @@ abstract class ClientHiDensityNearCacheUsageSupport extends ClientNearCacheUsage
         NearCacheConfig nearCacheConfig = super.createNearCacheConfig(cacheName, inMemoryFormat);
         if (inMemoryFormat == InMemoryFormat.NATIVE) {
             EvictionConfig evictionConfig = new EvictionConfig()
-                    .setMaximumSizePolicy(MaxSizePolicy.USED_NATIVE_MEMORY_PERCENTAGE)
+                    .setMaxSizePolicy(USED_NATIVE_MEMORY_PERCENTAGE)
                     .setSize(99);
             nearCacheConfig.setEvictionConfig(evictionConfig);
         }
@@ -100,18 +99,22 @@ abstract class ClientHiDensityNearCacheUsageSupport extends ClientNearCacheUsage
                 .addNearCacheConfig(nearCacheConfig);
 
         HazelcastClientProxy client = (HazelcastClientProxy) HazelcastClient.newHazelcastClient(clientConfig);
-        CachingProvider provider = HazelcastClientCachingProvider.createCachingProvider(client);
-        HazelcastClientCacheManager cacheManager = (HazelcastClientCacheManager) provider.getCacheManager();
+        // the code sample requires 2 separate CachingProviders backed by different
+        // HazelcastInstances, therefore using internal API to obtain a CachingProvider
+        // Do not use in production code
+        CachingProvider provider = new HazelcastClientCachingProvider(client);
+        CacheManager cacheManager = provider.getCacheManager();
 
         CacheConfig<K, V> cacheConfig = createCacheConfig(nearCacheConfig.getInMemoryFormat());
-        ICache<K, V> cache = cacheManager.createCache(cacheName, cacheConfig);
+        ICache<K, V> cache = (ICache<K, V>) cacheManager.createCache(cacheName, cacheConfig)
+                                        .unwrap(ICache.class);
 
         clients.add(client);
 
         EnterpriseSerializationService enterpriseSerializationService =
                 (EnterpriseSerializationService) client.getSerializationService();
 
-        return new HiDensityNearCacheSupportContext<K, V>(cache, enterpriseSerializationService.getMemoryManager());
+        return new HiDensityNearCacheSupportContext<>(cache, enterpriseSerializationService.getMemoryManager());
     }
 
     class HiDensityNearCacheSupportContext<K, V> {

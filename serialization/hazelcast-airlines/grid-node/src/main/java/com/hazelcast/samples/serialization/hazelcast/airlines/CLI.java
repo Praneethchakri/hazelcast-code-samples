@@ -1,24 +1,21 @@
 package com.hazelcast.samples.serialization.hazelcast.airlines;
 
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.map.IMap;
+import com.hazelcast.samples.serialization.hazelcast.airlines.ep.FlightLoadingEntryProcessor;
+import com.hazelcast.samples.serialization.hazelcast.airlines.ep.SeatReservationEntryProcessor;
+import com.hazelcast.samples.serialization.hazelcast.airlines.util.Constants;
+import com.hazelcast.samples.serialization.hazelcast.airlines.util.FlightBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.shell.command.annotation.Command;
+import org.springframework.shell.command.annotation.Option;
+import org.springframework.stereotype.Component;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.shell.core.CommandMarker;
-import org.springframework.shell.core.annotation.CliCommand;
-import org.springframework.shell.core.annotation.CliOption;
-import org.springframework.stereotype.Component;
-
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.samples.serialization.hazelcast.airlines.ep.FlightLoadingEntryProcessor;
-import com.hazelcast.samples.serialization.hazelcast.airlines.ep.SeatReservationEntryProcessor;
-import com.hazelcast.samples.serialization.hazelcast.airlines.util.Constants;
-import com.hazelcast.samples.serialization.hazelcast.airlines.util.FlightBuilder;
 
 /**
  * <p>Commands additional to the defaults provided
@@ -29,7 +26,7 @@ import com.hazelcast.samples.serialization.hazelcast.airlines.util.FlightBuilder
  * </p>
  */
 @Component
-public class CLI implements CommandMarker {
+public class CLI {
 
     @Autowired
     private HazelcastInstance hazelcastInstance;
@@ -60,12 +57,12 @@ public class CLI implements CommandMarker {
      * @param name Who to book the seat for
      * @return The seat booked
      */
-    @CliCommand(value = "BOOK",
-            help = "BOOK A SEAT ON A FLIGHT")
+    @Command(command = "BOOK",
+            description = "BOOK A SEAT ON A FLIGHT")
     public String loading(
-            @CliOption(key = {"CODE"}, mandatory = true, help = "THE FLIGHT TO BOOK ONTO")
+            @Option(label = "CODE", required = true, description = "THE FLIGHT TO BOOK ONTO")
                     String code,
-            @CliOption(key = {"NAME"}, mandatory = true, help = "WHO TO BOOK ONTO THE FLIGHT")
+            @Option(label = "NAME", required = true, description = "WHO TO BOOK ONTO THE FLIGHT")
                     String name
             ) {
         IMap<MyKey, AbstractFlight> flightsMap = this.hazelcastInstance.getMap(Constants.IMAP_FLIGHTS);
@@ -75,7 +72,7 @@ public class CLI implements CommandMarker {
         if (flightsMap.containsKey(myKey)) {
             SeatReservationEntryProcessor seatReservationEntryProcessor = new SeatReservationEntryProcessor(name);
 
-            String seat = flightsMap.executeOnKey(myKey, seatReservationEntryProcessor).toString();
+            String seat = flightsMap.executeOnKey(myKey, seatReservationEntryProcessor);
 
             if (seat == null) {
                 return String.format("Flight '%s' is full, sorry.%n", myKey);
@@ -97,10 +94,10 @@ public class CLI implements CommandMarker {
      * @param code The flight code, Date is hardcoded
      * @return Flight if found
      */
-    @CliCommand(value = "GET",
-            help = "RETRIEVE A FLIGHT")
+    @Command(command = "GET",
+            description = "RETRIEVE A FLIGHT")
     public String get(
-            @CliOption(key = {"CODE"}, mandatory = true) String code
+            @Option(label = "CODE", required = true) String code
             ) {
         IMap<MyKey, AbstractFlight> flightsMap = this.hazelcastInstance.getMap(Constants.IMAP_FLIGHTS);
 
@@ -120,12 +117,12 @@ public class CLI implements CommandMarker {
      * <p>List the stored flights, keys are {@link java.lang.Comparable} so sort before printing.
      * </p>
      */
-    @CliCommand(value = "KEYS",
-            help = "DISPLAY THE STORED FLIGHTS")
+    @Command(command = "KEYS",
+            description = "DISPLAY THE STORED FLIGHTS")
     public String keys() {
             IMap<MyKey, AbstractFlight> flightsMap = this.hazelcastInstance.getMap(Constants.IMAP_FLIGHTS);
 
-            Set<MyKey> keys = flightsMap.keySet().stream().collect(Collectors.toCollection(TreeSet::new));
+            Set<MyKey> keys = new TreeSet<>(flightsMap.keySet());
 
             keys.forEach(key -> System.out.println(" -> " + key));
 
@@ -144,10 +141,10 @@ public class CLI implements CommandMarker {
      * @param code The flight code, Date is hardcoded
      * @return How many passengers
      */
-    @CliCommand(value = "LOADING",
-            help = "HOW MANY SEATS ARE IN USE ON A FLIGHT")
+    @Command(command = "LOADING",
+            description = "HOW MANY SEATS ARE IN USE ON A FLIGHT")
     public String loading(
-            @CliOption(key = {"CODE"}, mandatory = true) String code
+            @Option(label = "CODE", required = true) String code
             ) {
         IMap<MyKey, AbstractFlight> flightsMap = this.hazelcastInstance.getMap(Constants.IMAP_FLIGHTS);
 
@@ -169,8 +166,8 @@ public class CLI implements CommandMarker {
      * <p>Load test data into the cluster.
      * </p>
      */
-    @CliCommand(value = "TESTDATA",
-            help = "INJECT TEST DATA INTO THE CLUSTER")
+    @Command(command = "TESTDATA",
+            description = "INJECT TEST DATA INTO THE CLUSTER")
     public String testData() {
         IMap<MyKey, AbstractFlight> hazelcastMap = this.hazelcastInstance.getMap(Constants.IMAP_FLIGHTS);
         StringBuilder sb = new StringBuilder();

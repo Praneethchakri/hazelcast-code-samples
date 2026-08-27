@@ -20,26 +20,18 @@
     <properties>
         <!-- needed for checkstyle/findbugs -->
         <main.basedir>${project.parent.basedir}</main.basedir>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <modules>
-        <module>atomiclong</module>
-        <module>atomiclong-functions</module>
-        <module>atomicreference</module>
         <module>cardinalityestimator</module>
-        <module>condition</module>
-        <module>countdownlatch</module>
-        <module>idgenerator</module>
         <module>flake-id-generator</module>
-        <module>lock</module>
-        <module>semaphore</module>
+        <module>pn-counter</module>
     </modules>
 
     <dependencies>
         <dependency>
             <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-all</artifactId>
+            <artifactId>hazelcast</artifactId>
             <version>${hazelcast.version}</version>
         </dependency>
 

@@ -1,28 +1,27 @@
 package com.test.portable;
 
+import com.hazelcast.config.AttributeConfig;
 import com.hazelcast.config.Config;
-import com.hazelcast.config.MapAttributeConfig;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
+import com.hazelcast.map.IMap;
 import com.hazelcast.query.Predicates;
 
-import java.text.ParseException;
 import java.util.Set;
 
 import static com.test.portable.Limb.limb;
 
 public class LimbNameDemo {
 
-    public static void main(String[] args) throws ParseException {
-        MapAttributeConfig mapAttributeConfig = new MapAttributeConfig();
-        mapAttributeConfig.setName("limbName");
-        mapAttributeConfig.setExtractor("com.test.portable.LimbNameExtractor");
+    public static void main(String[] args) {
+        AttributeConfig attributeConfig = new AttributeConfig();
+        attributeConfig.setName("limbName");
+        attributeConfig.setExtractorClassName("com.test.portable.LimbNameExtractor");
 
         MapConfig mapConfig = new MapConfig();
         mapConfig.setName("people");
-        mapConfig.addMapAttributeConfig(mapAttributeConfig);
+        mapConfig.addAttributeConfig(attributeConfig);
 
         Config config = new Config();
         config.getSerializationConfig().addPortableFactory(PersonFactory.FACTORY_ID, new PersonFactory());

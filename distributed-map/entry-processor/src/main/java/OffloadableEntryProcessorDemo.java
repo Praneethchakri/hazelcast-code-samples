@@ -1,11 +1,9 @@
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
 import com.hazelcast.core.Offloadable;
 import com.hazelcast.core.ReadOnly;
-import com.hazelcast.map.AbstractEntryProcessor;
-import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
+import com.hazelcast.map.IMap;
 
 import java.util.Map;
 
@@ -35,19 +33,23 @@ public class OffloadableEntryProcessorDemo {
         // EntryProcessor.process() will run on offloaded thread - a lock will be acquired for the given key
         String offloadedThread = (String) employees.executeOnKey("John", new OffloadableEntryProcessor());
         assertTrue(offloadedThread.contains("cached.thread"));
+        System.out.println("John salary after OffloadableEntryProcessor: " + employees.get("John").getSalary());
 
         // EntryProcessor.process() will run on offloaded thread - a lock won't be acquired for the given key, since
         // the EntryProcessor is ReadOnly
         offloadedThread = (String) employees.executeOnKey("John", new OffloadableReadOnlyEntryProcessor());
         assertTrue(offloadedThread.contains("cached.thread"));
+        System.out.println("John salary after OffloadableReadOnlyEntryProcessor: " + employees.get("John").getSalary());
 
         // EntryProcessor.process() will run on partition thread
         String partitionThread = (String) employees.executeOnKey("John", new ReadOnlyEntryProcessor());
         assertTrue(partitionThread.contains("partition-operation.thread"));
+        System.out.println("John salary after ReadOnlyEntryProcessor: " + employees.get("John").getSalary());
 
         // EntryProcessor.process() will run on partition thread
         partitionThread = (String) employees.executeOnKey("John", new OrdinaryEntryProcessor());
         assertTrue(partitionThread.contains("partition-operation.thread"));
+        System.out.println("John salary after OrdinaryEntryProcessor: " + employees.get("John").getSalary());
 
         Hazelcast.shutdownAll();
     }
@@ -80,8 +82,7 @@ public class OffloadableEntryProcessorDemo {
      * @see IMap#submitToKey(Object, EntryProcessor)
      * @see IMap#submitToKey(Object, EntryProcessor, com.hazelcast.core.ExecutionCallback)
      */
-    private static class OffloadableEntryProcessor extends AbstractEntryProcessor<String, Employee>
-            implements Offloadable {
+    private static class OffloadableEntryProcessor implements EntryProcessor<String, Employee, Object>, Offloadable {
         @Override
         public Object process(Map.Entry<String, Employee> entry) {
             Employee value = entry.getValue();
@@ -122,7 +123,7 @@ public class OffloadableEntryProcessorDemo {
      * @see IMap#submitToKey(Object, EntryProcessor)
      * @see IMap#submitToKey(Object, EntryProcessor, com.hazelcast.core.ExecutionCallback)
      */
-    private static class OffloadableReadOnlyEntryProcessor implements EntryProcessor<String, Employee>,
+    private static class OffloadableReadOnlyEntryProcessor implements EntryProcessor<String, Employee, Object>,
             Offloadable, ReadOnly {
         @Override
         public Object process(Map.Entry<String, Employee> entry) {
@@ -134,7 +135,7 @@ public class OffloadableEntryProcessorDemo {
         }
 
         @Override
-        public EntryBackupProcessor<String, Employee> getBackupProcessor() {
+        public EntryProcessor<String, Employee, Object> getBackupProcessor() {
             // ReadOnly EntryProcessor has to return null, since it's just a read-only operation that will not be
             // executed on the backup
             return null;
@@ -163,7 +164,7 @@ public class OffloadableEntryProcessorDemo {
      * @see IMap#submitToKey(Object, EntryProcessor)
      * @see IMap#submitToKey(Object, EntryProcessor, com.hazelcast.core.ExecutionCallback)
      */
-    private static class ReadOnlyEntryProcessor implements EntryProcessor<String, Employee>,
+    private static class ReadOnlyEntryProcessor implements EntryProcessor<String, Employee, Object>,
             ReadOnly {
         @Override
         public Object process(Map.Entry<String, Employee> entry) {
@@ -175,7 +176,7 @@ public class OffloadableEntryProcessorDemo {
         }
 
         @Override
-        public EntryBackupProcessor<String, Employee> getBackupProcessor() {
+        public EntryProcessor<String, Employee, Object> getBackupProcessor() {
             // ReadOnly EntryProcessor has to return null, since it's just a read-only operation that will not be
             // executed on the backup
             return null;
@@ -185,7 +186,7 @@ public class OffloadableEntryProcessorDemo {
     /**
      * Ordinary EntryProcessor that will run on a partition-thread
      */
-    private static class OrdinaryEntryProcessor extends AbstractEntryProcessor<String, Employee> {
+    private static class OrdinaryEntryProcessor implements EntryProcessor<String, Employee, Object> {
         @Override
         public Object process(Map.Entry<String, Employee> entry) {
             Employee value = entry.getValue();

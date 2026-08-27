@@ -20,12 +20,9 @@
     <properties>
         <!-- needed for checkstyle/findbugs -->
         <main.basedir>${project.parent.basedir}</main.basedir>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <modules>
-        <module>aggregations</module>
-
         <module>backup</module>
         <module>basics</module>
         <module>continuous-query</module>
@@ -39,6 +36,7 @@
         <module>hashcode-and-equals</module>
         <module>in-memory-format</module>
         <module>index</module>
+        <module>json</module>
         <module>locking</module>
         <module>map-interceptor</module>
         <module>mapstore</module>
@@ -50,12 +48,13 @@
         <module>sqlquery</module>
         <module>fast-aggregations</module>
         <module>projections</module>
+        <module>entrystore</module>
     </modules>
 
     <dependencies>
         <dependency>
             <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-all</artifactId>
+            <artifactId>hazelcast</artifactId>
             <version>${hazelcast.version}</version>
         </dependency>
     </dependencies>

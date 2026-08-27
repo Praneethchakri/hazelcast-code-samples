@@ -23,16 +23,19 @@
 
     <modules>
         <module>basic</module>
+        <module>client-exponential-backoff</module>
         <module>client-near-cache</module>
         <module>client-rest</module>
         <module>client-statistics</module>
         <module>user-code-deployment</module>
+        <module>client-labels</module>
+        <module>client-connection-strategy</module>
     </modules>
 
     <dependencies>
         <dependency>
             <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-all</artifactId>
+            <artifactId>hazelcast</artifactId>
             <version>${hazelcast.version}</version>
         </dependency>
     </dependencies>

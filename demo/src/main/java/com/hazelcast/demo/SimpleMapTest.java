@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2018, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
 
 package com.hazelcast.demo;
 
+import com.hazelcast.cluster.Member;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.XmlConfigBuilder;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.Member;
-import com.hazelcast.core.Partition;
 import com.hazelcast.logging.ILogger;
+import com.hazelcast.map.IMap;
+import com.hazelcast.partition.Partition;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -160,7 +160,7 @@ public final class SimpleMapTest {
 
         final IMap<String, Object> map = instance.getMap(NAMESPACE);
         final Member thisMember = instance.getCluster().getLocalMember();
-        List<String> lsOwnedEntries = new LinkedList<String>();
+        List<String> lsOwnedEntries = new LinkedList<>();
         for (int i = 0; i < entryCount; i++) {
             final String key = String.valueOf(i);
             Partition partition = instance.getPartitionService().getPartition(key);

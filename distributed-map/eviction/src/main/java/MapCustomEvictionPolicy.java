@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2016, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2018, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,54 +15,54 @@
  */
 
 import com.hazelcast.config.Config;
-import com.hazelcast.core.EntryEvent;
+import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MaxSizePolicy;
 import com.hazelcast.core.EntryView;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.map.eviction.MapEvictionPolicy;
+import com.hazelcast.map.IMap;
+import com.hazelcast.map.MapEvictionPolicyComparator;
 import com.hazelcast.map.listener.EntryEvictedListener;
+import com.hazelcast.spi.eviction.EvictionPolicyComparator;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import static com.hazelcast.config.MaxSizeConfig.MaxSizePolicy.PER_NODE;
 import static java.lang.String.format;
 import static java.lang.System.out;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.concurrent.locks.LockSupport.parkNanos;
 
 /**
- * This sample shows custom-eviction-policy usage for IMap. IMap uses a sampling based approach to evict entries.
+ * This sample shows custom eviction policy usage for IMap. IMap uses a sampling based approach to evict entries.
  * For more info about sampling approach, please refer to hazelcast documentation.
- *
- * To plug a custom-eviction-policy {@link com.hazelcast.config.MapConfig#setMapEvictionPolicy(MapEvictionPolicy)} is used
- * in this example, it is also pluggable declaratively.
+ * <p>
+ * To plug a custom eviction policy
+ * {@link com.hazelcast.config.EvictionConfig#setComparator(EvictionPolicyComparator)} is used
+ * in this example. Alternatively, custom eviction policy's class name can be also configured declaratively.
  */
 public class MapCustomEvictionPolicy {
 
     public static void main(String[] args) {
         Config config = new Config();
-        config.getMapConfig("test")
-                .setMapEvictionPolicy(new OddEvictor())
-                .getMaxSizeConfig()
-                .setMaxSizePolicy(PER_NODE).setSize(10000);
+        MapConfig mapConfig = config.getMapConfig("test");
+        mapConfig.getEvictionConfig()
+                 .setMaxSizePolicy(MaxSizePolicy.PER_NODE)
+                 .setSize(10000)
+                 .setComparator(new OddEvictor());
 
         HazelcastInstance instance = Hazelcast.newHazelcastInstance(config);
         IMap<Integer, Integer> map = instance.getMap("test");
 
-        final Queue<Integer> oddKeys = new ConcurrentLinkedQueue<Integer>();
-        final Queue<Integer> evenKeys = new ConcurrentLinkedQueue<Integer>();
+        final Queue<Integer> oddKeys = new ConcurrentLinkedQueue<>();
+        final Queue<Integer> evenKeys = new ConcurrentLinkedQueue<>();
 
-        map.addEntryListener(new EntryEvictedListener<Integer, Integer>() {
-            @Override
-            public void entryEvicted(EntryEvent<Integer, Integer> event) {
-                Integer key = event.getKey();
-                if (key % 2 == 0) {
-                    evenKeys.add(key);
-                } else {
-                    oddKeys.add(key);
-                }
+        map.addEntryListener((EntryEvictedListener<Integer, Integer>) event -> {
+            Integer key = event.getKey();
+            if (key % 2 == 0) {
+                evenKeys.add(key);
+            } else {
+                oddKeys.add(key);
             }
         }, false);
 
@@ -84,11 +84,11 @@ public class MapCustomEvictionPolicy {
     /**
      * Odd evictor tries to evict odd keys first.
      */
-    private static class OddEvictor extends MapEvictionPolicy {
+    private static class OddEvictor implements MapEvictionPolicyComparator<Integer, Integer> {
 
         @Override
-        public int compare(EntryView o1, EntryView o2) {
-            Integer key = (Integer) o1.getKey();
+        public int compare(EntryView<Integer, Integer> o1, EntryView<Integer, Integer> o2) {
+            Integer key = o1.getKey();
             if (key % 2 != 0) {
                 return -1;
             }

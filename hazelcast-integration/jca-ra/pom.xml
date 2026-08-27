@@ -18,13 +18,10 @@
     <properties>
         <!-- needed for checkstyle/findbugs -->
         <main.basedir>${project.parent.parent.basedir}</main.basedir>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <version.jboss.maven.plugin>7.1.1.Final</version.jboss.maven.plugin>
+        <version.jboss.maven.plugin>7.9.Final</version.jboss.maven.plugin>
         <version.jboss.spec.javaee.6.0>3.0.2.Final</version.jboss.spec.javaee.6.0>
-        <version.war.plugin>2.4</version.war.plugin>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <maven.compiler.source>1.7</maven.compiler.source>
+        <version.war.plugin>3.3.2</version.war.plugin>
     </properties>
 
     <dependencyManagement>
@@ -49,14 +46,14 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-jca</artifactId>
-            <version>3.6.4</version>
+            <version>3.7.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-jca-rar</artifactId>
-            <version>3.6.4</version>
-            <type>rar</type>
+            <version>3.7.2</version>
+            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>org.jboss.spec.javax.servlet</groupId>
@@ -78,6 +75,10 @@
             <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
             <version>2.0.0</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.annotation</groupId>
+            <artifactId>jboss-annotations-api_1.1_spec</artifactId>
         </dependency>
     </dependencies>
 
@@ -105,7 +106,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
                 <executions>
                     <execution>
                         <id>jboss-hazelcast-lib</id>

@@ -20,35 +20,53 @@
     <properties>
         <!-- needed for checkstyle/findbugs -->
         <main.basedir>${project.parent.basedir}</main.basedir>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <modules>
+        <module>auditlog</module>
         <module>client-ssl</module>
         <module>hd-imap</module>
         <module>hd-memory-client-server</module>
         <module>hidensity-cache</module>
         <module>hot-restart</module>
+        <module>ldap-authentication</module>
         <module>security-interceptor</module>
         <module>socket-interceptor</module>
         <module>wan-replication</module>
+        <module>pcf-tls-integration</module>
+        <module>client-custom-credentials</module>
+        <module>client-token-credentials</module>
+        <module>client-failover-cluster</module>
+        <module>ssl</module>
+        <module>symmetric-encryption</module>
+        <module>simple-authentication</module>
+        <module>tls-rbac-demo</module>
+        <module>tls-custom-login-module</module>
+        <module>user-code-namespaces</module>
+        <module>tiered-store</module>
     </modules>
 
     <repositories>
         <repository>
             <id>Hazelcast Private Snapshot Repository</id>
-            <url>https://repository-hazelcast-l337.forge.cloudbees.com/snapshot/</url>
+            <url>https://repository.hazelcast.com/snapshot/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
         </repository>
         <repository>
             <id>Hazelcast Private Release Repository</id>
-            <url>https://repository-hazelcast-l337.forge.cloudbees.com/release/</url>
+            <url>https://repository.hazelcast.com/release/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
 
     <dependencies>
         <dependency>
             <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-enterprise-all</artifactId>
+            <artifactId>hazelcast-enterprise</artifactId>
             <version>${hazelcast.version}</version>
         </dependency>
         <dependency>

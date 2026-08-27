@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2018, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public final class LongRunningTest {
     private static final int STATS_SECONDS = 10;
     private static final Logger LOGGER = Logger.getLogger(LongRunningTest.class.getName());
 
-    private final List<TheNode> nodes = new CopyOnWriteArrayList<TheNode>();
+    private final List<TheNode> nodes = new CopyOnWriteArrayList<>();
     private final Random random;
     private int nodeIdGen;
     private int starts;
@@ -85,7 +85,7 @@ public final class LongRunningTest {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 log("Shutting down " + nodes.size());
-                while (nodes.size() > 0) {
+                while (!nodes.isEmpty()) {
                     removeNode();
                 }
             }
@@ -251,8 +251,6 @@ public final class LongRunningTest {
                             Stats currentStats = stats.getAndReset();
                             logger.info("Cluster size: " + clusterSize + ", Operations per second: "
                                     + (currentStats.total() / STATS_SECONDS));
-                        } catch (HazelcastInstanceNotActiveException e) {
-                            throw new RuntimeException(e);
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }

@@ -1,0 +1,4 @@
+hazelcast:
+  import:
+    - hazelcast-network-config.yaml
+  cluster-name: dev-configured-from-yaml

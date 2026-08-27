@@ -1,6 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <hazelcast xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://www.hazelcast.com/schema/config
-                               http://www.hazelcast.com/schema/config/hazelcast-config-3.10.xsd"
+                               http://www.hazelcast.com/schema/config/hazelcast-config-5.5.xsd"
            xmlns="http://www.hazelcast.com/schema/config">
     <network>
         <join>
@@ -10,8 +11,52 @@
 
     <map name="personsWithIndex">
         <indexes>
-            <index ordered="false">name.surname</index>
+            <index type="HASH">
+                <attributes>
+                    <attribute>name.forename</attribute>
+                </attributes>
+            </index>
+            <index type="HASH">
+                <attributes>
+                    <attribute>name.surname</attribute>
+                </attributes>
+            </index>
         </indexes>
+    </map>
+
+    <map name="personsWithCompositeIndex">
+        <indexes>
+            <index type="HASH">
+                <attributes>
+                    <attribute>name.forename</attribute>
+                    <attribute>name.surname</attribute>
+                </attributes>
+            </index>
+        </indexes>
+    </map>
+
+    <map name="personsWithBitmapIndexOnHabits">
+        <indexes>
+            <index type="BITMAP">
+                <attributes>
+                    <attribute>habits[any]</attribute>
+                </attributes>
+            </index>
+        </indexes>
+        <!-- disable record caching for more precise index memory cost approximation -->
+        <cache-deserialized-values>NEVER</cache-deserialized-values>
+    </map>
+
+    <map name="personsWithHashIndexOnHabits">
+        <indexes>
+            <index type="HASH">
+                <attributes>
+                    <attribute>habits[any]</attribute>
+                </attributes>
+            </index>
+        </indexes>
+        <!-- disable record caching for more precise index memory cost approximation -->
+        <cache-deserialized-values>NEVER</cache-deserialized-values>
     </map>
 
     <map name="personsWithoutIndex">

@@ -1,9 +1,5 @@
 package com.hazelcast.samples.serialization.hazelcast.airlines;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -11,8 +7,11 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 import com.hazelcast.samples.serialization.hazelcast.airlines.util.Constants;
-
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * <p>A serializer for {@link V5Flight} objects.
@@ -31,7 +30,7 @@ public class V5FlightSerializer implements StreamSerializer<V5Flight> {
      * serialize it.
      * </p>
      */
-    private static final ThreadLocal<Kryo> KRYO_THREAD_LOCAL = new ThreadLocal<Kryo>() {
+    private static final ThreadLocal<Kryo> KRYO_THREAD_LOCAL = new ThreadLocal<>() {
         @Override
         protected Kryo initialValue() {
             Kryo kryo = new Kryo();

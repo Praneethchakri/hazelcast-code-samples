@@ -5,26 +5,26 @@ import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.cache.impl.HazelcastClientCacheManager;
 import com.hazelcast.client.cache.impl.HazelcastClientCachingProvider;
 import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.client.impl.HazelcastClientProxy;
 import com.hazelcast.config.CacheConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.EvictionConfig;
 import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.JoinConfig;
+import com.hazelcast.config.MaxSizePolicy;
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.examples.Article;
 import com.hazelcast.internal.nearcache.NearCache;
-import com.hazelcast.monitor.NearCacheStats;
+import com.hazelcast.nearcache.NearCacheStats;
 
 import javax.cache.spi.CachingProvider;
 import java.util.LinkedList;
 import java.util.List;
 
 import static com.hazelcast.examples.helper.CommonUtils.sleepSeconds;
-import static com.hazelcast.spi.properties.GroupProperty.CACHE_INVALIDATION_MESSAGE_BATCH_FREQUENCY_SECONDS;
+import static com.hazelcast.spi.properties.ClusterProperty.CACHE_INVALIDATION_MESSAGE_BATCH_FREQUENCY_SECONDS;
 import static java.lang.Integer.parseInt;
 
 @SuppressWarnings({"checkstyle:methodcount", "unused"})
@@ -32,11 +32,11 @@ public abstract class ClientNearCacheUsageSupport {
 
     protected static final String DEFAULT_CACHE_NAME = "ClientCache";
 
-    private static final int EXPIRATION_TASK_DELAY_SECONDS = 2 * NearCache.DEFAULT_EXPIRATION_TASK_DELAY_IN_SECONDS;
+    private static final int EXPIRATION_TASK_DELAY_SECONDS = 2 * NearCache.DEFAULT_EXPIRATION_TASK_PERIOD_SECONDS;
     private static final int INVALIDATION_DELAY_SECONDS
             = 2 * parseInt(CACHE_INVALIDATION_MESSAGE_BATCH_FREQUENCY_SECONDS.getDefaultValue());
 
-    protected final List<HazelcastInstance> clients = new LinkedList<HazelcastInstance>();
+    protected final List<HazelcastInstance> clients = new LinkedList<>();
 
     private final InMemoryFormat inMemoryFormat;
     private final HazelcastInstance serverInstance;
@@ -103,7 +103,7 @@ public abstract class ClientNearCacheUsageSupport {
     protected EvictionConfig createEvictionConfigWithEntryCountPolicy(int size) {
         return new EvictionConfig()
                 .setEvictionPolicy(EvictionPolicy.LRU)
-                .setMaximumSizePolicy(EvictionConfig.MaxSizePolicy.ENTRY_COUNT)
+                .setMaxSizePolicy(MaxSizePolicy.ENTRY_COUNT)
                 .setSize(size);
     }
 
@@ -154,8 +154,11 @@ public abstract class ClientNearCacheUsageSupport {
                                                            NearCacheConfig nearCacheConfig) {
         ClientConfig clientConfig = createClientConfig();
         clientConfig.addNearCacheConfig(nearCacheConfig);
-        HazelcastClientProxy client = (HazelcastClientProxy) HazelcastClient.newHazelcastClient(clientConfig);
-        CachingProvider provider = HazelcastClientCachingProvider.createCachingProvider(client);
+        HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
+        // the code sample requires 2 separate CachingProviders backed by different
+        // HazelcastInstances, therefore using internal API to obtain a CachingProvider
+        // Do not use in production code
+        CachingProvider provider = new HazelcastClientCachingProvider(client);
         HazelcastClientCacheManager cacheManager = (HazelcastClientCacheManager) provider.getCacheManager();
 
         ICache<K, V> cache = cacheManager.createCache(cacheName, cacheConfig);
@@ -184,8 +187,11 @@ public abstract class ClientNearCacheUsageSupport {
     protected <K, V> ICache<K, V> getCacheWithNearCache(String cacheName, NearCacheConfig nearCacheConfig) {
         ClientConfig clientConfig = createClientConfig();
         clientConfig.addNearCacheConfig(nearCacheConfig);
-        HazelcastClientProxy client = (HazelcastClientProxy) HazelcastClient.newHazelcastClient(clientConfig);
-        CachingProvider provider = HazelcastClientCachingProvider.createCachingProvider(client);
+        HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
+        // the code sample requires 2 separate CachingProviders backed by different
+        // HazelcastInstances, therefore using internal API to obtain a CachingProvider
+        // Do not use in production code
+        CachingProvider provider = new HazelcastClientCachingProvider(client);
         HazelcastClientCacheManager cacheManager = (HazelcastClientCacheManager) provider.getCacheManager();
 
         ICache<K, V> cache = cacheManager.getCache(cacheName);
